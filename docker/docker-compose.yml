@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mysql-wordpress:
+    container_name: mysql-wordpress
+    image: mysql:5
+    restart: always
+    volumes:
+      - ${WP_DIR}/sql_data:/var/lib/mysql
+      - ${WP_DIR}/initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      default:
+        ipv4_address: ${MYSQL_WP_IP}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_WP_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_WP_USER}
+      MYSQL_PASSWORD: ${MYSQL_WP_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_WP_DATABASE}
+
+  wordpress:
+    container_name: wordpress
+    image: wordpress:php7.0
+    restart: always
+    ports:
+      - "{WP_EXPOSED_PORT}:80"
+    networks:
+      default:
+        ipv4_address: ${WP_IP}
+    volumes:
+      - ${WP_DIR}/splc:/var/www/html
+    depends_on:
+      - mysql-wordpress
+    links:
+      - mysql-wordpress:mysql
+    environment:
+      WORDPRESS_DB_USER: ${MYSQL_WP_USER} 
+      WORDPRESS_DB_PASSWORD: ${MYSQL_WP_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_WP_DATABASE}
+ 
+  flask:
+    container_name: flask
+    image: flask
+    restart: always
+    ports:
+      - "${FLASK_EXPOSED_PORT}:80"
+    networks:
+      default:
+        ipv4_address: ${FLASK_IP}
+    volumes:
+      - ${FLASK_DIR}:/app
+
+networks:
+  default:
+    external:
+      name: ${NET_NAME}
