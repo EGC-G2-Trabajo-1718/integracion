@@ -1,5 +1,5 @@
 FROM maven:latest
 
-CMD [ "mvn clean install" ]
+RUN [ "mvn", "clean", "install" ]
 
-CMD [ "mvn exec:java" ]
+RUN [ "mvn", "exec:java"]
