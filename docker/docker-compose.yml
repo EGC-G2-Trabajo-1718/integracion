@@ -50,6 +50,20 @@ services:
         ipv4_address: ${FLASK_IP}
     volumes:
       - ${FLASK_DIR}:/app
+      
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
+  almacen_votos:
+    container_name: almacen_votos
+    image: egc/python
+    restart: always
+    ports:
+      - "${ALMACEN_EXPOSED_PORT}:8080"
+    networks:
+      default:
+        ipv4_address: ${ALMACEN_IP}
+    volumes:
+      - ${ALMACEN_DIR}:/app
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
