@@ -65,6 +65,35 @@ services:
     volumes:
       - ${CABINA_DIR}:/app
 
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
+  adm_censos:
+    container_name: adm_censos
+    image: egc/django3
+    restart: always
+    ports:
+      - "${ADM_CENSOS_EXPOSED_PORT}:8080"
+    networks:
+      default:
+        ipv4_address: ${ADM_CENSOS_IP}
+    volumes:
+      - ${ADM_CENSOS_DIR}:/app
+
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
+  autenticacion:
+    container_name: autenticacion
+    image: egc/django2
+    restart: always
+    ports:
+      - "${AUT_EXPOSED_PORT}:8080"
+    networks:
+      default:
+        ipv4_address: ${AUT_IP}
+    volumes:
+      - ${AUT_DIR}:/app
+
+
 networks:
   default:
     external:
