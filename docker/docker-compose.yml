@@ -93,6 +93,15 @@ services:
     volumes:
       - ${AUT_DIR}:/app
 
+  mysql-voting:
+    container_name: mysql-voting
+    image: mysql:5
+    restart: always
+    networks:
+      default:
+        ipv4_address: ${MYSQL_VT_IP}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_VT_ROOT_PASSWORD}
 
 networks:
   default:
