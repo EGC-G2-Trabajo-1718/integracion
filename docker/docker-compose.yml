@@ -17,6 +17,16 @@ services:
       MYSQL_PASSWORD: ${MYSQL_WP_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_WP_DATABASE}
 
+  mysql-voting:
+    container_name: mysql-voting
+    image: mysql:5
+    restart: always
+    networks:
+      default:
+        ipv4_address: ${MYSQL_VT_IP}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_VT_ROOT_PASSWORD}
+
   wordpress:
     container_name: wordpress
     image: wordpress:php7.0
@@ -50,7 +60,35 @@ services:
         ipv4_address: ${FLASK_IP}
     volumes:
       - ${FLASK_DIR}:/app
-      
+
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
+  autenticacion:
+    container_name: autenticacion
+    image: egc/django2
+    restart: always
+    ports:
+      - "${AUT_EXPOSED_PORT}:8080"
+    networks:
+      default:
+        ipv4_address: ${AUT_IP}
+    volumes:
+      - ${AUT_DIR}:/app
+
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
+  adm_censos:
+    container_name: adm_censos
+    image: egc/django3
+    restart: always
+    ports:
+      - "${ADM_CENSOS_EXPOSED_PORT}:8080"
+    networks:
+      default:
+        ipv4_address: ${ADM_CENSOS_IP}
+    volumes:
+      - ${ADM_CENSOS_DIR}:/app
+
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
   almacen_votos:
