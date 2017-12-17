@@ -84,10 +84,25 @@ services:
   cabina_votaciones_telegram:
     container_name: cabina_votaciones_telegram
     image: egc/maven
-    restart: always
     volumes:
       - ${TELEGRAM_DIR}:/app
+    working_dir: /app/basicBot
+
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
+  recuento_votos:
+    container_name: recuento_votos
+    image: composer
+    restart: always
+    ports:
+      - "${RECUENTO_EXPOSED_PORT}:8000"
+    networks:
+      default:
+        ipv4_address: ${RECUENTO_IP}
+    volumes:
+      - ${RECUENTO_DIR}:/app
     working_dir: /app
+    command: ["bash", "-c", "composer install && php -S localhost:8000 -t public"]
 
 networks:
   default:
