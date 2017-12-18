@@ -17,9 +17,11 @@ services:
       MYSQL_PASSWORD: ${MYSQL_WP_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_WP_DATABASE}
 
+# WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
+
   mysql-voting:
     container_name: mysql-voting
-    image: mysql:5
+    image: egc/mysql
     restart: always
     networks:
       default:
@@ -88,6 +90,18 @@ services:
         ipv4_address: ${ADM_CENSOS_IP}
     volumes:
       - ${ADM_CENSOS_DIR}:/app
+
+  adm_votaciones:
+    container_name: adm_votaciones
+    image: tomcat:7-jre8
+    restart: always
+    ports:
+      - "${ADM_VOT_EXPOSED_PORT}:8080"
+    networks:
+      default:
+        ipv4_address: ${ADM_VOT_IP}
+    volumes:
+      - ${ADM_VOT_DIR}/build:/usr/local/tomcat/webapps
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
