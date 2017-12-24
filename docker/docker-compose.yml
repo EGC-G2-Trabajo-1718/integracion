@@ -101,13 +101,13 @@ services:
       default:
         ipv4_address: ${ADM_VOT_IP}
     volumes:
-      - ${ADM_VOT_DIR}/build:/usr/local/tomcat/webapps
+      - ${ADM_VOT_DIR}:/usr/local/tomcat/webapps
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
   almacen_votos:
     container_name: almacen_votos
-    image: egc/python
+    image: egc/almacen
     restart: always
     ports:
       - "${ALMACEN_EXPOSED_PORT}:8080"
