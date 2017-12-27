@@ -17,19 +17,19 @@ grant select, insert, update, delete, create, drop, references, index, alter,
 
 create database `autenticacion` character set UTF8;
 
-create user 'auth-user'@'%' identified by password '';
+create user 'auth-user'@'%' identified by password '*D4729648115A359469A493B06F9BF7071EAE3D62';
 
 grant all privileges on `autenticacion`.* to 'auth-user'@'%';
 
 create database `adm_censos` character set UTF8;
 
-create user 'censos-user'@'%' identified by password '';
+create user 'censos-user'@'%' identified by password '*D4729648115A359469A493B06F9BF7071EAE3D62';
 
 grant all privileges on `adm_censos`.* to 'censos-user'@'%';
 
 create database `almacenamiento` character set UTF8;
 
-create user 'alm-user'@'%' identified by password '';
+create user 'alm-user'@'%' identified by password '*D4729648115A359469A493B06F9BF7071EAE3D62';
 
 grant all privileges on `almacenamiento`.* to 'alm-user'@'%';
 
