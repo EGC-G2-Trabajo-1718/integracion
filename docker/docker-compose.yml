@@ -51,17 +51,15 @@ services:
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
-  flask:
-    container_name: flask
-    image: flask
+  portal-votaciones:
+    container_name: portal-votaciones
+    image: egc/portal
     restart: always
     ports:
       - "${FLASK_EXPOSED_PORT}:80"
     networks:
       default:
         ipv4_address: ${FLASK_IP}
-    volumes:
-      - ${FLASK_DIR}:/app
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
@@ -110,12 +108,10 @@ services:
     image: egc/almacen
     restart: always
     ports:
-      - "${ALMACEN_EXPOSED_PORT}:8080"
+      - "${ALMACEN_EXPOSED_PORT}:80"
     networks:
       default:
         ipv4_address: ${ALMACEN_IP}
-    volumes:
-      - ${ALMACEN_DIR}:/app
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
@@ -135,10 +131,11 @@ services:
 
   cabina_votaciones_telegram:
     container_name: cabina_votaciones_telegram
-    image: egc/maven
+    image: maven
     volumes:
       - ${TELEGRAM_DIR}:/app
     working_dir: /app/basicBot
+    command: ["mvn", "clean", "install", "exec:java"]
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 

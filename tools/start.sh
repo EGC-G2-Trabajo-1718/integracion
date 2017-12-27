@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 
 BRANCH="none"
@@ -6,6 +6,7 @@ CHECKOUT_DST="none"
 
 
 function clone_repos() {
+    mkdir ~/repos
     cd ~/repos
     if [ "$BRANCH" == "master" ]; then
         git clone https://github.com/EGC-G2-Trabajo-1718/portal-votaciones.git
@@ -31,91 +32,6 @@ function clone_repos() {
 }
 
 
-fucntion checkout_repos() {
-    if [ "$CHECKOUT_DST" == "master" ]; then
-        cd ~/repos/portal-votaciones
-        git checkout master
-        cd ~/repos/autenticacion
-        git checkout master
-        cd ~/repos/adm_censos
-        git checkout master
-        cd ~/repos/adm_votaciones
-        git checkout master
-        cd ~/repos/almacen
-        git checkout master
-        cd ~/repos/cabina
-        git checkout master
-        cd ~/repos/telegram
-        git checkout master
-        cd ~/repos/recuento
-        git checkout master
-        cd ~/repos
-        mv .dev .master
-        update_repos
-
-    else [ "$CHECKOUT_DST" == "dev" ]; then
-        cd ~/repos/portal-votaciones
-        git checkout dev
-        cd ~/repos/autenticacion
-        git checkout dev
-        cd ~/repos/adm_censos
-        git checkout development
-        cd ~/repos/adm_votaciones
-        git checkout development
-        cd ~/repos/almacen
-        git checkout master
-        cd ~/repos/cabina
-        git checkout dev
-        cd ~/repos/telegram
-        git checkout Dev
-        cd ~/repos/recuento
-        git checkout master
-        cd ~/repos
-        mv .master .dev
-        update_repos
-}
-
-
-function update_branch() {
-    cd ~/repos
-    if [ "$BRANCH" == "master" ]; then
-        if [ -a ".master" ]; then
-            pull_repos()
-        else
-            CHECKOUT_DST="dev"
-            checkout_repos
-        fi
-    else
-        if [ -a ".master" ]; then
-            CHECKOUT_DST="master"
-            checkout_repos
-        else
-            pull_repos()
-        fi
-    fi
-}
-
-
-function update_repos() {
-    cd ~/repos/portal-votaciones
-    git pull
-    cd ~/repos/autenticacion
-    git pull
-    cd ~/repos/adm_censos
-    git pull
-    cd ~/repos/adm_votaciones
-    git pull
-    cd ~/repos/almacen
-    git pull
-    cd ~/repos/cabina
-    git pull
-    cd ~/repos/telegram
-    git pull
-    cd ~/repos/recuento
-    git pull
-}
-
-
 function choose_branch() {
     echo "Escriba el nombre de la rama deseada"
     echo "Para salir pulse CTRL + C"
@@ -127,33 +43,53 @@ function choose_branch() {
 
 
 function compile_images() {
-    cd ~/scripts/integracion/dockerfiles/django
+    # Working dir for this phase is ~/compilation
+
+    # Remove previous images, and compile them with new sources
+
+    if [ -d "~/compilation" ]; then
+        rm -rf ~/compilation
+    fi
+
+    mkdir ~/compilation
+    cp -r ~/scripts/integracion/docker/dockerfiles/* ~/compilation/.
+
+    cd ~/compilation/django
+
     docker rmi egc/django2
     docker rmi egc/django3
 
-    docker build -t egc/django2 -f django2
-    docker build -t egc/django3 -f django3
+    mv django2 Dockerfile
+    docker build --no-cache -t egc/django2 .
 
-    cd ~/scripts/integracion/dockerfiles/flask
-    docker rmi egc/flask
-    cp ~/repos/portal-votaciones/requirements.txt .
-    docker build -t egc/flask .
+    mv django3 Dockerfile
+    docker build --no-cache -t egc/django3 .
 
-    cd ~/scripts/integracion/dockerfiles/maven
-    docker rmi egc/maven
-    docker build -t egc/maven . 
+    # Flask apps must have main.py and prestart.sh files in root folder
 
-    cd ~/scripts/integracion/dockerfiles/mysql
+    cd ~/compilation/flask
+
+    docker rmi egc/portal
+    docker rmi egc/almacen
+
+    cp -r ~/repos/portal-votaciones/ app
+    docker build --no-cache -t egc/portal .
+
+    rm -rf app
+
+    cp -r ~/repos/almacen/ app
+
+    docker build --no-cache -t egc/almacen .
+
+    cd ~/compilation/mysql
+
     docker rmi egc/mysql
+    sed -i "s/password\ ''/password\ 'egc'/g" init.sql
     docker build -t egc/mysql .
 
-    cd ~/scripts/integracion/dockerfiles/node
+    cd ~/compilation/node
     docker rmi egc/node
     docker build -t egc/node .
-
-    cd ~/scripts/integracion/dockerfiles/flask
-    cp ~/repos/almacen/requirements.txt .
-    docker build -t egc/almacen .
 }
 
 
@@ -165,20 +101,30 @@ function mvn_compile() {
         mkdir mvn
     fi
 
-    if [ -d "build"]; then
+    if [ -d "build" ]; then
         rm -rf build/*
     else
         mkdir build
     fi
 
     cp -r adm_votaciones/* mvn/.
-    docker run --rm -v /home/egc/mvn:/usr/src/mymaven -w /usr/src/mymaven maven:3-jdk-8 mvn clean install package -DskipTests=true
-    mv ~/mvn/*.war build/ROOT.war
+    docker run --rm -v /home/egc/repos/mvn:/usr/src/mymaven -w /usr/src/mymaven maven:3-jdk-8 mvn clean install package -DskipTests=true
+    sudo mv ~/repos/mvn/target/*.war ~/repos/build/ROOT.war
 }
 
 
 function deploy_dbs() {
-    cd ~/scripts/integracion/docker
+    if [ -d "/home/egc/docker" ]; then
+        rm -rf ~/docker/
+    fi
+    mkdir ~/docker
+    cp -r ~/scripts/integracion/docker ~/
+    cd ~/docker
+    sed -i 's/chosen_user/variability/g' .env
+    sed -i 's/chosen_pass1/4dm_j0rn4d4s/g' .env
+    sed -i 's/chosen_pass2/variability_is_strong_in_you/g' .env
+    sed -i 's/db_name/jornadas/g' .env
+    echo .env
     docker-compose up -d mysql-wordpress mysql-voting
     echo "Finalizando inicialización..."
     sleep 15
@@ -187,6 +133,7 @@ function deploy_dbs() {
 
 
 echo "ADVERTENCIA: Este script asume que el repositorio de integración se encuentra en ~/scripts/integracion"
+echo "ADVERTENCIA: Para algunas operaciones es necesario disponer de privilegios, introduce la contraseña cuando sea necesario"
 
 while [ "$BRANCH" != "master" ] && [ "$BRANCH" != "dev" ]; do
     choose_branch
@@ -206,13 +153,14 @@ cd ~/scripts/integracion/
 
 git pull
 
-echo "git: Descargando/Actualizando repositorios de los subsistemas"
+echo "git: Descargando repositorios de los subsistemas"
 
-if [ -d "~/repos" ]; then
-    update_branch
-else
-    clone_repos
+if [ -d "/home/egc/repos" ]; then
+    echo "Se necesitan permisos administrativos para eliminar algunos ficheros de los repositorios"
+    sudo rm -rf ~/repos
 fi
+
+clone_repos
 
 echo "docker: Compilando/actualizando imágenes docker de algunos subsistemas"
 
@@ -228,6 +176,6 @@ mvn_compile
 
 echo "Desplegando subsistemas restantes"
 
-cd ~/scripts/integracion/docker
+cd ~/docker
 
 docker-compose up -d 
