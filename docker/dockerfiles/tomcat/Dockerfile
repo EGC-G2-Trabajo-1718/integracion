@@ -1,3 +1,3 @@
 FROM tomcat:7-jre8
 
-RUN value=`cat conf/server.xml` && echo "${value//8080/80}" >| conf/server.xml
+RUN sed -i 's/8080/80/g' conf/server.xml
