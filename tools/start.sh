@@ -133,7 +133,7 @@ function deploy_dbs() {
     echo "Inicialización terminada"
 }
 
-
+main(){
 echo "ADVERTENCIA: Este script asume que el repositorio de integración se encuentra en ~/scripts/integracion"
 echo "ADVERTENCIA: Para algunas operaciones es necesario disponer de privilegios, introduce la contraseña cuando sea necesario"
 
@@ -181,3 +181,8 @@ echo "Desplegando subsistemas restantes"
 cd ~/docker
 
 docker-compose up -d 
+}
+
+if [ "${1}" != "--source-only" ]; then
+    main
+fi
