@@ -60,10 +60,10 @@ function compile_images() {
     docker rmi egc/django3
 
     mv django2 Dockerfile
-    docker build --no-cache -t egc/django2 .
+    docker build -t egc/django2 .
 
     mv django3 Dockerfile
-    docker build --no-cache -t egc/django3 .
+    docker build -t egc/django3 .
 
     # Flask apps must have main.py and prestart.sh files in root folder
 
@@ -82,14 +82,16 @@ function compile_images() {
     docker build --no-cache -t egc/almacen .
 
     cd ~/compilation/mysql
-
     docker rmi egc/mysql
-    sed -i "s/password\ ''/password\ 'egc'/g" init.sql
     docker build -t egc/mysql .
 
     cd ~/compilation/node
     docker rmi egc/node
     docker build -t egc/node .
+
+    cd ~/compilation/tomcat
+    docker rmi egc/tomcat
+    docker build -t egc/tomcat .
 }
 
 
@@ -126,7 +128,7 @@ function deploy_dbs() {
     sed -i 's/db_name/jornadas/g' .env
     echo .env
     docker-compose up -d mysql-wordpress mysql-voting
-    echo "Finalizando inicialización..."
+    echo "Finalizando inicialización de las BDs..."
     sleep 15
     echo "Inicialización terminada"
 }
