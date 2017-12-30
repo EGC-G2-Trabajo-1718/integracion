@@ -33,4 +33,10 @@ create user 'alm-user'@'%' identified by password '*D4729648115A359469A493B06F9B
 
 grant all privileges on `almacenamiento`.* to 'alm-user'@'%';
 
+create database `recuento` character set UTF8;
+
+create user 'rec-user'@'%' identified by password '*D4729648115A359469A493B06F9BF7071EAE3D62';
+
+grant all privileges on `recuento`.* to 'rec-user'@'%';
+
 commit;
