@@ -23,6 +23,8 @@ services:
     container_name: mysql-voting
     image: egc/mysql
     restart: always
+    ports:
+      - "${MYSQL_VT_EXPOSED_PORT}:3306"
     networks:
       default:
         ipv4_address: ${MYSQL_VT_IP}
