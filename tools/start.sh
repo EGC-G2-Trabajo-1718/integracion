@@ -2,7 +2,15 @@
 
 
 BRANCH="none"
-CHECKOUT_DST="none"
+
+
+function print_msg() {
+    echo
+    echo "============================"
+    echo "$1"
+    echo "============================"
+    echo
+}
 
 
 function clone_repos() {
@@ -47,7 +55,7 @@ function compile_images() {
 
     # Remove previous images, and compile them with new sources
 
-    if [ -d "~/compilation" ]; then
+    if [ -d "$HOME/compilation" ]; then
         rm -rf ~/compilation
     fi
 
@@ -126,14 +134,14 @@ function deploy_dbs() {
     sed -i 's/chosen_pass1/4dm_j0rn4d4s/g' .env
     sed -i 's/chosen_pass2/variability_is_strong_in_you/g' .env
     sed -i 's/db_name/jornadas/g' .env
-    echo .env
     docker-compose up -d mysql-wordpress mysql-voting
-    echo "Finalizando inicialización de las BDs..."
+    print_msg "Finalizando inicialización de las BDs..."
     sleep 15
-    echo "Inicialización terminada"
+    print_msg "Inicialización terminada"
 }
 
-main(){
+
+main() {
 echo "ADVERTENCIA: Este script asume que el repositorio de integración se encuentra en ~/scripts/integracion"
 echo "ADVERTENCIA: Para algunas operaciones es necesario disponer de privilegios, introduce la contraseña cuando sea necesario"
 
@@ -141,21 +149,21 @@ while [ "$BRANCH" != "master" ] && [ "$BRANCH" != "dev" ]; do
     choose_branch
 done
 
-echo "docker: Parando todos los contenedores"
+print_msg "docker: Parando todos los contenedores"
 
 docker stop $(docker ps -q)
 
-echo "docker: Eliminando contenedores"
+print_msg "docker: Eliminando contenedores"
 
 docker rm -v $(docker ps -a -q)
 
-echo "git: Actualizando repositorio de integración"
+print_msg "git: Actualizando repositorio de integración"
 
 cd ~/scripts/integracion/
 
 git pull
 
-echo "git: Descargando repositorios de los subsistemas"
+print_msg "git: Descargando repositorios de los subsistemas"
 
 if [ -d "/home/egc/repos" ]; then
     echo "Se necesitan permisos administrativos para eliminar algunos ficheros de los repositorios"
@@ -164,24 +172,25 @@ fi
 
 clone_repos
 
-echo "docker: Compilando/actualizando imágenes docker de algunos subsistemas"
+print_msg "docker: Compilando/actualizando imágenes docker de algunos subsistemas"
 
 compile_images
 
-echo "mysql: Inicializando bases de datos"
+print_msg "mysql: Inicializando bases de datos"
 
 deploy_dbs
 
-echo "maven: Construyendo subsistemas maven"
+print_msg "maven: Construyendo subsistemas maven"
 
 mvn_compile
 
-echo "Desplegando subsistemas restantes"
+print_msg "Desplegando subsistemas restantes"
 
 cd ~/docker
 
-docker-compose up -d 
+docker-compose up -d
 }
+
 
 if [ "${1}" != "--source-only" ]; then
     main
