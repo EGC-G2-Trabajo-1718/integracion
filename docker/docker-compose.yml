@@ -114,8 +114,6 @@ services:
     networks:
       default:
         ipv4_address: ${ALMACEN_IP}
-    volumes:
-      - ${ALMACEN_DIR}:/app
 
 # WARNING: USING CUSTOM IMAGE. COMPILE IMAGE FIRST.
 
