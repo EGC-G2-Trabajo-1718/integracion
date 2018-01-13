@@ -23,11 +23,11 @@ before_deploy:
   - chmod 600 deploy && mv deploy ~/.ssh/id_rsa
   - curl -O https://raw.githubusercontent.com/EGC-G2-Trabajo-1718/integracion/master/tools/deploy.sh
   # ADMINISTRACIÓN DE VOTACIONES: DESCOMENTAR SIGUIENTE LÍNEA
-  # - scp target/*.war deploy@egc.duckdns.org:g2/tmp/ROOT.war
+  # - scp -o StrictHostKeyChecking=no target/*.war deploy@egc.duckdns.org:g2/tmp/ROOT.war
 
 deploy:
   skip_cleanup: true
   provider: script
-  script: ssh deploy@egc.duckdns.org 'bash -s' < deploy.sh <subsistema> # INSERTAR NOMBRE DEL SUBSISTEMA ESPECIFICADO EN LA WIKI SIN LOS CARACTERES "< >"
+  script: ssh -o StrictHostKeyChecking=no deploy@egc.duckdns.org 'bash -s' < deploy.sh <subsistema> # INSERTAR NOMBRE DEL SUBSISTEMA ESPECIFICADO EN LA WIKI SIN LOS CARACTERES "< >"
   on:
     branch: master
