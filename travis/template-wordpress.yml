@@ -1,0 +1,18 @@
+before_install:
+  # INSERTAR AQUÍ LÍNEA PARA DESENCRIPTAR CLAVE DE ACCESO AL SERVIDOR DE DESPLIEGUE,
+  #    PROPORCIONADA POR INTEGRACIÓN
+
+before_deploy:
+  - chmod 600 deploy && mv deploy ~/.ssh/id_rsa
+  - curl -O https://raw.githubusercontent.com/EGC-G2-Trabajo-1718/integracion/master/tools/deploy-wordpress-subsistemas.sh
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: ssh -o StrictHostKeyChecking=no deploy@egc.duckdns.org 'bash -s' < deploy-wordpress-subsistemas.sh <subsistema> # INSERTAR NOMBRE DE UNO DE LOS SIGUIENTES SUBSITEMAS SIN LOS CARACTERES "< >"
+                                                                                                                          # RedesSociales
+                                                                                                                          # Registro
+                                                                                                                          # project-program
+                                                                                                                          # COINCIDE CON EL NOMBRE DEL REPOSITORIO
+  on:
+    branch: master
