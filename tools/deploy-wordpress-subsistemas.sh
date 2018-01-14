@@ -27,11 +27,11 @@ function deploy_registro() {
 function main() {
     case "$1" in
     "project-program")
-        deploy_autenticacion "$@";;
+        deploy_programa "$@";;
     "RedesSociales")
-        deploy_censos "$@";;
+        deploy_redes "$@";;
     "Registro")
-        deploy_votaciones "$@";;
+        deploy_registro "$@";;
     esac
 }
 
